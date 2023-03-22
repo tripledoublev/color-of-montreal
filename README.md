@@ -1,8 +1,8 @@
 # Color of Berlin
 
-A Twitter bot that tweets the color of the sky in Berlin.
+A Twitter bot that tweets the color of the sky in Berlin that was forked to tweet the color of the sky in Montréal.
 
-This bot fetches the latest image of the sky in Berlin, crops and places it on an HTML5 Canvas, picks the color and matches it against a color list, fills a new Canvas with the color that was matched, then tweets the color name, image, and HEX value.
+This bot fetches the latest image of the sky in Montréal, crops and places it on an HTML5 Canvas, picks the color and matches it against a color list, fills a new Canvas with the color that was matched, then tweets the color name, image, and HEX value.
 
 ## Prerequisites
 
