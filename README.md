@@ -1,4 +1,4 @@
-# Color of Berlin
+# Color of <strike>Berlin</strike> Montréal
 
 A Twitter bot that tweets the color of the sky in Berlin that was forked to tweet the color of the sky in Montréal.
 
