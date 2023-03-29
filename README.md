@@ -34,8 +34,14 @@ LOCATION=
 
 - In the project directory, run `node index.js` from the command line to send a tweet.
 
+- Currently tweeting the color of the sky in Montreal with the following account [@vncntxyz](https://twitter.com/vncntxyz)
+
 ## Credits and Inspiration
 
-Meteorology/sky photos sourced from Berlin's official tourism and congress organization webcams at [visitBerlin](https://webcam.visitberlin.de/).
+Currently using images from [Montreal's Traffic camera infrastructure](https://ville.montreal.qc.ca/circulation/).
+
+Thanks to [Lauren Dorman's Color of Berlin](https://github.com/laurendorman/color-of-berlin)
+
+Original repository used Meteorology/sky photos sourced from Berlin's official tourism and congress organization webcams at [visitBerlin](https://webcam.visitberlin.de/).
 
 Forked color list provided by [@gekidoslair](https://gist.github.com/gekidoslair/72058193cb2fc8cbc182).
