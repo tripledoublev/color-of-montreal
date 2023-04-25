@@ -51,7 +51,6 @@ const couleurs = [
     ["haricot noir", [61, 12, 2]],
     ["veste en cuir noir", [37, 53, 41]],
     ["haricot noir", [61, 12, 2]],
-    ["veste en cuir noir", [37, 53, 41]],
     ["olive noire", [59, 60, 54]],
     ["amande blanchie", [255, 235, 205]],
     ["bronze de décollage", [165, 113, 100]],
