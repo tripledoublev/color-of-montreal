@@ -16,9 +16,9 @@ const client = new Twitter({
   access_token_secret: process.env.TWITTER_API_TOKEN_SECRET || "",
 });
 
-const LOCATION = process.env.LOCATION || "Berlin";
+const LOCATION = process.env.LOCATION || "Montréal";
 const SOURCE_IMAGE = process.env.SOURCE_IMAGE || 
-  "http://www.met.fu-berlin.de/wetter/webcam/picam2_prod.jpg";
+  "https://ville.montreal.qc.ca/Circulation-Cameras/GEN547.jpeg";
 
 const MIN_SLEEP_TIME = 0.25 * 60 * 60 * 1000;
 const MAX_SLEEP_TIME = 0.5 * 60 * 60 * 1000;
