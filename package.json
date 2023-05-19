@@ -1,7 +1,7 @@
 {
-  "name": "color-of-berlin",
-  "version": "1.0.1",
-  "description": "The color of the sky in Berlin.",
+  "name": "color-of-montreal",
+  "version": "0.0.1",
+  "description": "The color of the sky in Montreal.",
   "scripts": {
     "prettier:check": "prettier --check .",
     "prettier:write": "prettier --write ."
