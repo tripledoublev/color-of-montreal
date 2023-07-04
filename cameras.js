@@ -13,7 +13,6 @@ const cameras = [
     ["St-Jean-Baptiste & Sherbrooke", "https://ville.montreal.qc.ca/Circulation-Cameras/GEN86.jpeg"],
     ["Acadie & Beaumont", "https://ville.montreal.qc.ca/Circulation-Cameras/GEN100.jpeg"],
     ["Decarie & Jean-Talon", "https://ville.montreal.qc.ca/Circulation-Cameras/GEN214.jpeg"],
-    ["St-Donat & Sherbrooke", "https://ville.montreal.qc.ca/Circulation-Cameras/GEN4.jpeg"],
     ["Notre-dame & PIE-IX", "https://ville.montreal.qc.ca/Circulation-Cameras/GEN31.jpeg"],
     ["Frontenac & Notre-Dame", "https://ville.montreal.qc.ca/Circulation-Cameras/GEN70.jpeg"],
 ];
