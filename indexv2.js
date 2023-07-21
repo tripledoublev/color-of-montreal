@@ -166,13 +166,13 @@ const sendUpdate = async (name, hex, imglocation) => {
       // Upload media using v1.1
       const mediaId = await client.v1.uploadMedia("./output.png");
 
+      // Tweet text
+      const tweetText = `${name} est la couleur du ciel de ${LOCATION} au coin de ${imglocation}`;
       // Create tweet with media using v2
-      const tweetResponse = await client.v2.tweetThread([`${name} est la couleur du ciel de ${LOCATION} au coin de ${imglocation}`,
-        { media: { media_ids: [mediaId] }},]);
+      const tweetResponse = await client.v2.tweetThread([{ media: { media_ids: [mediaId] }}, tweetText,
+        ]);
       console.log('Status updated.');
-     // Update banner
-     const updateBanner = await client.v1.updateAccountProfileBanner('./output.png');
-     console.log('Banner updated.');
+      console.log('Tweeted', tweetText);
 
     } catch (err) {
       console.error('Error in sendUpdate:', err);
