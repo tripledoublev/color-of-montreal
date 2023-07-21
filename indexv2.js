@@ -25,8 +25,8 @@ const LOCATION = process.env.LOCATION || "Montréal";
 const SOURCE_IMAGE = process.env.SOURCE_IMAGE || 
   "https://ville.montreal.qc.ca/Circulation-Cameras/GEN547.jpeg";
 
-const MIN_SLEEP_TIME = 0.4 * 60 * 60 * 1000;
-const MAX_SLEEP_TIME = 0.8 * 60 * 60 * 1000;
+const MIN_SLEEP_TIME = 1 * 60 * 60 * 1000;
+const MAX_SLEEP_TIME = 1.2 * 60 * 60 * 1000;
 
 let lastColor;
 
