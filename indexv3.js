@@ -61,8 +61,8 @@ const loop = () => {
 
    // Mint NFT before tweeting
       const colorValue = "#" + hexValue;
-      mintNFT(imglocation, colorValue, name).then((transactionHash) => {
-        updateWithImage(name, hexValue, imglocation, transactionHash);
+      mintNFT(imglocation, colorValue, name).then(({ transactionHash, tokenId }) => {
+        updateWithImage(name, hexValue, imglocation, { transactionHash, tokenId });
       }).catch(error => {
         console.error('Error minting NFT:', error);
       });
@@ -85,20 +85,36 @@ const loop = () => {
   setTimeout(loop, sleep);
 };
 
-
 async function mintNFT(location, color, colorName) {
   const accounts = await web3.eth.getAccounts();
   const account = accounts[0];
 
   const gasPrice = await web3.eth.getGasPrice();
   const gasEstimate = await contract.methods.mintNFT(location, color, colorName).estimateGas({ from: account, value: web3.utils.toWei('0.0006', 'ether') });
-  
+
   const receipt = await contract.methods.mintNFT(location, color, colorName).send({ from: account, gas: gasEstimate, gasPrice: gasPrice, value: web3.utils.toWei('0.0006', 'ether') });
-  
+
   const transactionHash = receipt.transactionHash; // Get the transaction hash from the receipt
   console.log('Transaction hash: ', transactionHash);
-  return transactionHash;
+  
+  const transferEventTopic = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef";
+  const transferLog = receipt.logs.find(
+    (log) => log.topics[0] === transferEventTopic
+  );
+
+  let tokenId = '';
+  if (transferLog) {
+    const tokenIdHex = transferLog.topics[3]; // Assuming the `tokenId` is the fourth indexed parameter
+    tokenId = parseInt(tokenIdHex, 16).toString(); // Parse as integer to remove leading zeros
+    tokenId = tokenId.replace(/^0+/, ''); // Remove leading zeros
+  } else {
+    console.log("Transfer event not found in the logs.");
+  }
+  
+  console.log('Token ID: ', tokenId);
+  return { transactionHash, tokenId };
 }
+
 
 const getImage = (callback) => {
   const randomIndex = Math.floor(Math.random() * cameras.length);
@@ -185,7 +201,7 @@ function streamToBuffer(stream) {
   });
 }
 
-const updateWithImage = (name, hex, imglocation) => {
+const updateWithImage = (name, hex, imglocation, transactionData) => {
   const canvas = createCanvas();
   const ctx = canvas.getContext("2d");
   canvas.width = 400;
@@ -197,11 +213,11 @@ const updateWithImage = (name, hex, imglocation) => {
 
   return fs.writeFile("output.png", dataURL, "base64", (err) => {
     if (err) throw err;
-    sendUpdate(name, hex, imglocation);
+    sendUpdate(name, hex, imglocation, transactionData);
   });
 };
 
-const sendUpdate = async (name, hex, imglocation, transactionHash) => {
+const sendUpdate = async (name, hex, imglocation, { transactionHash, tokenId }) => {
     try {
       // Upload media using v1.1
       const mediaId = await client.v1.uploadMedia("./output.png");
@@ -209,7 +225,8 @@ const sendUpdate = async (name, hex, imglocation, transactionHash) => {
       // Tweet text
       const tweetText = `${name} est la couleur du ciel de ${LOCATION} au coin de ${imglocation}`;
       const chainExplorerUrl = `https://optimistic.etherscan.io/tx/${transactionHash}`;
-      const transactionText = `A Color of Montreal NFT was just minted. Transaction Hash on Optimism: ${transactionHash} ${chainExplorerUrl}`;
+      const openSeaUrl = `https://opensea.io/assets/optimism/0xf641ba7134365d657ee014a189ba35bd5e5dd788/${tokenId}`;
+      const transactionText = `A Color of Montreal NFT was just minted. Transaction Hash on Optimism: ${transactionHash} Check it out on OpenSea: ${openSeaUrl}`;
       //  Create tweet with media using v2
       const tweetResponse = await client.v2.tweetThread([{ media: { media_ids: [mediaId] }}, tweetText, transactionText,
         ]);
