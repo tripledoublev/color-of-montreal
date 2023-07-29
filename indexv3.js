@@ -226,7 +226,7 @@ const sendUpdate = async (name, hex, imglocation, { transactionHash, tokenId }) 
       const tweetText = `${name} est la couleur du ciel de ${LOCATION} au coin de ${imglocation}`;
       const chainExplorerUrl = `https://optimistic.etherscan.io/tx/${transactionHash}`;
       const openSeaUrl = `https://opensea.io/assets/optimism/0xf641ba7134365d657ee014a189ba35bd5e5dd788/${tokenId}`;
-      const transactionText = `A Color of Montreal NFT was just minted. Transaction Hash on Optimism: ${transactionHash} Check it out on OpenSea: ${openSeaUrl}`;
+      const transactionText = `Color of Montreal (COULEUR) was just minted on Optimism.\nTransaction Hash:\n ${transactionHash}\nEtherscan link: ${chainExplorerUrl}\nCheck it out on OpenSea: ${openSeaUrl}`;
       //  Create tweet with media using v2
       const tweetResponse = await client.v2.tweetThread([{ media: { media_ids: [mediaId] }}, tweetText, transactionText,
         ]);
