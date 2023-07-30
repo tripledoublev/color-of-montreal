@@ -5,7 +5,7 @@ global.crypto = {
     return crypto.randomFillSync(buffer);
   },
 };
-
+const suncalc = require('suncalc');
 const { default: Web3 } = require('web3');
 const HDWalletProvider = require("@truffle/hdwallet-provider");
 const { TwitterApi } = require('twitter-api-v2');
@@ -71,10 +71,44 @@ const loop = () => {
       console.error("Error tweeting color: ", name);
     }
   });
+    const times = suncalc.getTimes(new Date(), 45.508888, -73.561668);
 
-  const sleep = Math.round(
-    MIN_SLEEP_TIME + Math.random() * (MAX_SLEEP_TIME - MIN_SLEEP_TIME)
-  );
+  let currentHour = new Date().getHours();
+  let nextTweetInMilliseconds;
+
+  const totalRequests = 24;
+  const sunriseRequests = 7; // Number of requests during sunrise
+  const daylightRequests = 7; // Number of requests during daylight
+  const sunsetRequests = 7; // Number of requests during sunset
+  const nightRequests = totalRequests - sunriseRequests - daylightRequests - sunsetRequests;
+
+  const sunriseTime = times.sunrise.getHours();
+  const sunsetTime = times.sunset.getHours();
+  const daylightTime = sunsetTime - sunriseTime;
+  const nightTime = 24 - daylightTime;
+
+  const sunriseInterval = (60 * 60 * 1000 * sunriseTime) / sunriseRequests;
+  const daylightInterval = (60 * 60 * 1000 * daylightTime) / daylightRequests;
+  const sunsetInterval = (60 * 60 * 1000 * sunsetTime) / sunsetRequests;
+  const nightInterval = (60 * 60 * 1000 * nightTime) / nightRequests;
+
+  // Night
+  if (currentHour < times.sunrise.getHours() || currentHour >= times.sunset.getHours()) {
+    nextTweetInMilliseconds = nightInterval;
+  } 
+  // Sunrise
+  else if (currentHour >= times.sunrise.getHours() - 1 && currentHour < times.sunrise.getHours() + 1) {
+    nextTweetInMilliseconds = sunriseInterval;
+  }
+  // Daylight
+  else if (currentHour >= times.sunrise.getHours() + 1 && currentHour < times.sunset.getHours() - 1) {
+    nextTweetInMilliseconds = daylightInterval;
+  }
+  // Sunset
+  else if (currentHour >= times.sunset.getHours() - 1 && currentHour < times.sunset.getHours() + 1) {
+    nextTweetInMilliseconds = sunsetInterval;
+  }
+  const sleep = nextTweetInMilliseconds;
   console.log(
     "Bot is sleeping for " +
     sleep / 60 / 1000 +
@@ -225,8 +259,8 @@ const sendUpdate = async (name, hex, imglocation, { transactionHash, tokenId }) 
       // Tweet text
       const tweetText = `${name} est la couleur du ciel de ${LOCATION} au coin de ${imglocation}`;
       const chainExplorerUrl = `https://optimistic.etherscan.io/tx/${transactionHash}`;
-      const openSeaUrl = `https://opensea.io/assets/optimism/0xf641ba7134365d657ee014a189ba35bd5e5dd788/${tokenId}`;
-      const transactionText = `Color of Montreal (COULEUR) was just minted on Optimism.\nTransaction Hash:\n ${transactionHash}\nEtherscan link: ${chainExplorerUrl}\nCheck it out on OpenSea: ${openSeaUrl}`;
+      const openSeaUrl = `https://opensea.io/assets/optimism/0x658cfa2c71F0eD3406d0a45BAd87D4C84a923E48/${tokenId}`;
+      const transactionText = `COULEURS #${tokenId} was just minted on Optimism.\nTransaction Hash:\n${transactionHash}\nEtherscan link: ${chainExplorerUrl}\nSee it on OpenSea: ${openSeaUrl}`;
       //  Create tweet with media using v2
       const tweetResponse = await client.v2.tweetThread([{ media: { media_ids: [mediaId] }}, tweetText, transactionText,
         ]);
