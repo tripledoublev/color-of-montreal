@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 
 global.crypto = {
-  getRandomValues: function(buffer) {
+  getRandomValues: function (buffer) {
     return crypto.randomFillSync(buffer);
   },
 };
@@ -24,7 +24,7 @@ if (process.env.NODE_ENV !== "production") {
 
 let provider;
 let web3;
-let contract; 
+let contract;
 
 const ABI = require('./web3/ABI.json');
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
@@ -57,12 +57,12 @@ const bigIntReplacer = (key, value) => {
 }
 
 function initializeProvider() {
-    provider = new HDWalletProvider(PRIVATE_KEY, INFURA_URL);
- console.log('HDWalletProvider initialized');
-    web3 = new Web3(provider, { debug: true });
-console.log('Web3 initialized');
-    contract = new web3.eth.Contract(ABI, CONTRACT_ADDRESS);
-console.log('Contract initialized');
+  provider = new HDWalletProvider(PRIVATE_KEY, INFURA_URL);
+  console.log('HDWalletProvider initialized');
+  web3 = new Web3(provider, { debug: true });
+  console.log('Web3 initialized');
+  contract = new web3.eth.Contract(ABI, CONTRACT_ADDRESS);
+  console.log('Contract initialized');
 };
 const loop = () => {
   initializeProvider();
@@ -72,13 +72,13 @@ const loop = () => {
     const canvas = createCanvas();
     const color = getColor(img, canvas);
     const hexValue = hex(color);
-    
-const name = findNearest(color);
-console.log(`Nearest color name: ${name}`);
+
+    const name = findNearest(color);
+    console.log(`Nearest color name: ${name}`);
     if (lastColor != name) {
       lastColor = name;
 
-   // Mint NFT before tweeting
+      // Mint NFT before tweeting
       const colorValue = "#" + hexValue;
       mintNFT(imglocation, colorValue, name).then(({ transactionHash, tokenId }) => {
         updateWithImage(name, hexValue, imglocation, { transactionHash, tokenId });
@@ -93,7 +93,7 @@ console.log(`Nearest color name: ${name}`);
   const currentDate = new Date();
   const times = suncalc.getTimes(currentDate, 45.508888, -73.561668);
   let sleep;
-    if (currentDate > times.dawn && currentDate < times.sunrise.getTime() + 30 * 60 * 1000) {
+  if (currentDate > times.dawn && currentDate < times.sunrise.getTime() + 30 * 60 * 1000) {
     console.log("After dawn and before sunrise Dawn: ", new Date(times.dawn), ", Sunrise: ", new Date(times.sunrise.getTime() + 30 * 60 * 1000));
     sleep = 15 * 60 * 1000;
   } else if (currentDate > times.sunrise.getTime() + 30 * 60 * 1000 && currentDate < times.sunsetStart.getTime() - 60 * 60 * 1000) {
@@ -123,12 +123,12 @@ async function mintNFT(location, color, colorName) {
   let accounts = await web3.eth.getAccounts();
   let account = accounts[0];
 
-console.log(`Minting NFT. Account: ${account}`);
+  console.log(`Minting NFT. Account: ${account}`);
 
   let gasPrice = await web3.eth.getGasPrice();
   let gasEstimate = await contract.methods.mintNFT(location, color, colorName).estimateGas({ from: account, value: web3.utils.toWei('0.0006', 'ether') });
 
-console.log(`Gas price: ${gasPrice}`);
+  console.log(`Gas price: ${gasPrice}`);
 
   let receipt = await contract.methods.mintNFT(location, color, colorName).send({ from: account, gas: gasEstimate, gasPrice: gasPrice, value: web3.utils.toWei('0.0006', 'ether') });
 
@@ -151,14 +151,12 @@ console.log(`Gas price: ${gasPrice}`);
     console.log("Transfer event not found in the logs.");
   }
   console.log('COULEURS Token ID: ', tokenId);
-   accounts.length = 0;
+  accounts.length = 0;
   account = null;
   gasPrice = null;
   gasEstimate = null;
   receipt = null;
   transferLog = null;
-  web3.providers.https.disconnect();
-  console.log('Web3 disconnected.')
   provider.engine.stop();
   console.log('Provider stopped.')
 
@@ -189,15 +187,24 @@ const getImage = (callback) => {
 
         // Count black pixels
         const { data, info } = await sharp(src).raw().toBuffer({ resolveWithObject: true });
+
+        console.log(`Processing image: ${src}`);
+        console.log(`Image dimensions: ${info.width} x ${info.height}`);
+        console.log(`First 10 pixel data values: ${data.slice(0, 10)}`;
+
         let blackPixelCount = 0;
+        const threshold = 50; // You can adjust this value
 
         for (let i = 0; i < data.length; i += 4) {
-          if (data[i] < 50 && data[i + 1] < 50 && data[i + 2] < 50) {
+          if (data[i] < threshold && data[i + 1] < threshold && data[i + 2] < threshold) {
             blackPixelCount++;
           }
         }
 
         const blackPixelPercentage = (blackPixelCount / (info.width * info.height)) * 100;
+
+        console.log(`Black pixel count: ${blackPixelCount}`);
+        console.log(`Black pixel percentage: ${blackPixelPercentage}%`);
 
         // If the percentage is greater than 90%, fetch and process another image
         if (blackPixelPercentage >= 90) {
@@ -275,24 +282,24 @@ const updateWithImage = (name, hex, imglocation, transactionData) => {
 };
 
 const sendUpdate = async (name, hex, imglocation, { transactionHash, tokenId }) => {
-    try {
-      // Upload media using v1.1
-      const mediaId = await client.v1.uploadMedia("./output.png");
+  try {
+    // Upload media using v1.1
+    const mediaId = await client.v1.uploadMedia("./output.png");
 
-      // Tweet text
-      const tweetText = `${name} est la couleur du ciel de ${LOCATION} au coin de ${imglocation}`;
-      const chainExplorerUrl = `https://optimistic.etherscan.io/tx/${transactionHash}`;
-      const openSeaUrl = `https://opensea.io/assets/optimism/0x658cfa2c71F0eD3406d0a45BAd87D4C84a923E48/${tokenId}`;
-      const transactionText = `COULEURS #${tokenId}: ${name} was just minted on Optimism.\nTransaction Hash:\n${transactionHash}\nEtherscan link: ${chainExplorerUrl}\nFrom ${imglocation} to OpenSea: ${openSeaUrl}`;
-      //  Create tweet with media using v2
-      const tweetResponse = await client.v2.tweetThread([{ media: { media_ids: [mediaId] }}, tweetText, transactionText,
-        ]);
-      console.log('Status updated.');
-      console.log('Tweeted', tweetText);
+    // Tweet text
+    const tweetText = `${name} est la couleur du ciel de ${LOCATION} au coin de ${imglocation}`;
+    const chainExplorerUrl = `https://optimistic.etherscan.io/tx/${transactionHash}`;
+    const openSeaUrl = `https://opensea.io/assets/optimism/0x658cfa2c71F0eD3406d0a45BAd87D4C84a923E48/${tokenId}`;
+    const transactionText = `COULEURS #${tokenId}: ${name} was just minted on Optimism.\nTransaction Hash:\n${transactionHash}\nEtherscan link: ${chainExplorerUrl}\nFrom ${imglocation} to OpenSea: ${openSeaUrl}`;
+    //  Create tweet with media using v2
+    const tweetResponse = await client.v2.tweetThread([{ media: { media_ids: [mediaId] } }, tweetText, transactionText,
+    ]);
+    console.log('Status updated.');
+    console.log('Tweeted', tweetText);
 
-    } catch (err) {
-      console.error('Error in sendUpdate:', err);
-    }
+  } catch (err) {
+    console.error('Error in sendUpdate:', err);
+  }
 };
 
 loop();
