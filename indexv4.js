@@ -190,7 +190,7 @@ const getImage = (callback) => {
 
         console.log(`Processing image: ${src}`);
         console.log(`Image dimensions: ${info.width} x ${info.height}`);
-        console.log(`First 10 pixel data values: ${data.slice(0, 10)}`;
+        console.log(`First 10 pixel data values: ${data.slice(0, 10)}`);
 
         let blackPixelCount = 0;
         const threshold = 50; // You can adjust this value
