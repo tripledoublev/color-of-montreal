@@ -136,7 +136,7 @@ console.log(`Gas price: ${gasPrice}`);
 
   const transactionHash = receipt.transactionHash; // Get the transaction hash from the receipt
   console.log('Transaction hash: ', transactionHash);
-  console.log(`Receipt: ${JSON.stringify(receipt, bigIntReplacer)}`);
+
   const transferEventTopic = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef";
   let transferLog = receipt.logs.find(
     (log) => log.topics[0] === transferEventTopic
