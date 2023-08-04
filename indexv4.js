@@ -188,9 +188,7 @@ const getImage = (callback) => {
         // Count black pixels
         const { data, info } = await sharp(src).raw().toBuffer({ resolveWithObject: true });
 
-        console.log(`Processing image: ${src}`);
         console.log(`Image dimensions: ${info.width} x ${info.height}`);
-        console.log(`First 10 pixel data values: ${data.slice(0, 10)}`);
 
         let blackPixelCount = 0;
         const threshold = 50; // You can adjust this value
@@ -287,12 +285,12 @@ const sendUpdate = async (name, hex, imglocation, { transactionHash, tokenId }) 
     const mediaId = await client.v1.uploadMedia("./output.png");
 
     // Tweet text
-    const tweetText = `${name} est la couleur du ciel de ${LOCATION} au coin de ${imglocation}`;
+    const tweetText = `${name} est la couleur du ciel de ${LOCATION} au coin de ${imglocation}.\n\nCOULEURS #${tokenId},\nhex triplet:\n${hex}\ntxn hash${transactionHash}`;
     const chainExplorerUrl = `https://optimistic.etherscan.io/tx/${transactionHash}`;
     const openSeaUrl = `https://opensea.io/assets/optimism/0x658cfa2c71F0eD3406d0a45BAd87D4C84a923E48/${tokenId}`;
-    const transactionText = `COULEURS #${tokenId}: ${name} was just minted on Optimism.\nTransaction Hash:\n${transactionHash}\nEtherscan link: ${chainExplorerUrl}\nFrom ${imglocation} to OpenSea: ${openSeaUrl}`;
+    const transactionText = `COULEURS #${tokenId}: ${name} was just minted on Optimism.\nEtherscan link: ${chainExplorerUrl}\nFrom ${imglocation} to OpenSea: ${openSeaUrl}`;
     //  Create tweet with media using v2
-    const tweetResponse = await client.v2.tweetThread([{ media: { media_ids: [mediaId] } }, tweetText, transactionText,
+    const tweetResponse = await client.v2.tweetThread([ tweetText, { media: { media_ids: [mediaId] } }, transactionText,
     ]);
     console.log('Status updated.');
     console.log('Tweeted', tweetText);
