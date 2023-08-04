@@ -150,14 +150,18 @@ console.log(`Gas price: ${gasPrice}`);
   } else {
     console.log("Transfer event not found in the logs.");
   }
+  console.log('COULEURS Token ID: ', tokenId);
    accounts.length = 0;
   account = null;
   gasPrice = null;
   gasEstimate = null;
   receipt = null;
   transferLog = null;
+  web3.disconnect();
+  console.log('Web3 disconnected.')
   provider.engine.stop();
-  console.log('Token ID: ', tokenId);
+  console.log('Provider stopped.')
+
   return { transactionHash, tokenId };
 }
 
