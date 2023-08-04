@@ -157,7 +157,7 @@ console.log(`Gas price: ${gasPrice}`);
   gasEstimate = null;
   receipt = null;
   transferLog = null;
-  web3.disconnect();
+  web3.provider.disconnect();
   console.log('Web3 disconnected.')
   provider.engine.stop();
   console.log('Provider stopped.')
