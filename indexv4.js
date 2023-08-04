@@ -157,7 +157,7 @@ console.log(`Gas price: ${gasPrice}`);
   gasEstimate = null;
   receipt = null;
   transferLog = null;
-  web3.provider.disconnect();
+  web3.providers.https.disconnect();
   console.log('Web3 disconnected.')
   provider.engine.stop();
   console.log('Provider stopped.')
@@ -189,7 +189,14 @@ const getImage = (callback) => {
 
         // Count black pixels
         const { data, info } = await sharp(src).raw().toBuffer({ resolveWithObject: true });
-        const blackPixelCount = data.reduce((count, value, i) => count + (i % 4 < 3 && value < 50), 0);
+        let blackPixelCount = 0;
+
+        for (let i = 0; i < data.length; i += 4) {
+          if (data[i] < 50 && data[i + 1] < 50 && data[i + 2] < 50) {
+            blackPixelCount++;
+          }
+        }
+
         const blackPixelPercentage = (blackPixelCount / (info.width * info.height)) * 100;
 
         // If the percentage is greater than 90%, fetch and process another image
