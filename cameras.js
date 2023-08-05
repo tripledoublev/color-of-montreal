@@ -14,6 +14,7 @@ const cameras = [
     ["Decarie & Jean-Talon", "https://ville.montreal.qc.ca/Circulation-Cameras/GEN214.jpeg"],
     ["Notre-dame & PIE-IX", "https://ville.montreal.qc.ca/Circulation-Cameras/GEN31.jpeg"],
     ["Frontenac & Notre-Dame", "https://ville.montreal.qc.ca/Circulation-Cameras/GEN70.jpeg"],
+    ["Rosemont & St-Denis", "https://ville.montreal.qc.ca/Circulation-Cameras/GEN42.jpeg"],
 ];
 
 exports.cameras = cameras;
