@@ -285,7 +285,7 @@ const sendUpdate = async (name, hex, imglocation, { transactionHash, tokenId }) 
     const mediaId = await client.v1.uploadMedia("./output.png");
 
     // Tweet text
-    const tweetText = `${name} est la couleur du ciel de ${LOCATION} au coin de ${imglocation}.\n\nCOULEURS #${tokenId},\nhex triplet:\n${hex}\ntxn hash${transactionHash}`;
+    const tweetText = `${name} est la couleur du ciel de ${LOCATION} au coin de ${imglocation}.\n\nCOULEURS #${tokenId},\nhex triplet: #${hex},\ntxn hash: ${transactionHash}`;
     const chainExplorerUrl = `https://optimistic.etherscan.io/tx/${transactionHash}`;
     const openSeaUrl = `https://opensea.io/assets/optimism/0x658cfa2c71F0eD3406d0a45BAd87D4C84a923E48/${tokenId}`;
     const transactionText = `COULEURS #${tokenId}: ${name} was just minted on Optimism.\nEtherscan link: ${chainExplorerUrl}\nFrom ${imglocation} to OpenSea: ${openSeaUrl}`;
