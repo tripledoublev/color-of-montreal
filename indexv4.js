@@ -15,7 +15,6 @@ const sharp = require('sharp');
 const { Image, createCanvas } = require("canvas");
 const { getColor, findNearest, hex } = require("./tools");
 const { cameras } = require("./cameras");
-
 const fs = require("fs");
 
 if (process.env.NODE_ENV !== "production") {
@@ -104,7 +103,7 @@ const loop = () => {
     sleep = 15 * 60 * 1000;
   } else if (currentDate > times.dusk && currentDate < times.dawn.getTime() + 24 * 60 * 60 * 1000) {
     console.log("After dusk and before dawn. Dusk: ", new Date(times.dusk), ", Dawn ", new Date(times.dawn.getTime() + 1 * 60 * 60 * 1000));
-    sleep = 120 * 60 * 1000;
+    sleep = 165 * 60 * 1000;
   } else {
     console.log("No matching interval found. Current time: ", currentDate);
     sleep = 104 * 60 * 1000;
@@ -205,7 +204,7 @@ const getImage = (callback) => {
         console.log(`Black pixel percentage: ${blackPixelPercentage}%`);
 
         // If the percentage is greater than 90%, fetch and process another image
-        if (blackPixelPercentage >= 90) {
+        if (blackPixelPercentage >= 60) {
           console.log(`Skipping image due to high black pixel percentage: ${blackPixelPercentage}%`);
           getImage(callback);  // Recursively call the function to process another image
           return;
