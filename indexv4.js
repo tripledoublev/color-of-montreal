@@ -71,7 +71,7 @@ const loop = () => {
   // Re-require the cameras.js module
   const { cameras } = require('./cameras');
 
-  getImage((src, imglocation) => {
+  getImage(cameras, (src, imglocation) => {
     const img = new Image();
     img.src = src;
     const canvas = createCanvas();
@@ -169,7 +169,7 @@ async function mintNFT(location, color, colorName) {
 }
 
 
-const getImage = (callback) => {
+const getImage = (cameras, callback) => {
   const randomIndex = Math.floor(Math.random() * cameras.length);
   const randomImageUrl = cameras[randomIndex][1];
   const imglocation = cameras[randomIndex][0];
