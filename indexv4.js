@@ -97,16 +97,16 @@ const loop = () => {
     sleep = 15 * 60 * 1000;
   } else if (currentDate > times.sunrise.getTime() + 30 * 60 * 1000 && currentDate < times.sunsetStart.getTime() - 60 * 60 * 1000) {
     console.log("After sunrise and before sunsetStart. Sunrise", new Date(times.sunrise.getTime() + 30 * 60 * 1000), ", Sunset: ", new Date(times.sunsetStart.getTime() - 60 * 60 * 1000));
-    sleep = 65 * 60 * 1000;
+    sleep = 75 * 60 * 1000;
   } else if (currentDate > times.sunsetStart.getTime() - 60 * 60 * 1000 && currentDate < times.dusk) {
     console.log("After sunsetStart and before dusk. Dusk:", new Date(times.sunsetStart.getTime() - 60 * 60 * 1000), ", Dusk: ", new Date(times.dusk));
     sleep = 15 * 60 * 1000;
   } else if (currentDate > times.dusk && currentDate < times.dawn.getTime() + 24 * 60 * 60 * 1000) {
     console.log("After dusk and before dawn. Dusk: ", new Date(times.dusk), ", Dawn ", new Date(times.dawn.getTime() + 1 * 60 * 60 * 1000));
-    sleep = 165 * 60 * 1000;
+    sleep = 175 * 60 * 1000;
   } else {
     console.log("No matching interval found. Current time: ", currentDate);
-    sleep = 104 * 60 * 1000;
+    sleep = 114 * 60 * 1000;
   }
   console.log(
     "Bot is sleeping for " +
