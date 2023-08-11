@@ -14,7 +14,6 @@ const https = require("https");
 const sharp = require('sharp');
 const { Image, createCanvas } = require("canvas");
 const { getColor, findNearest, hex } = require("./tools");
-const { cameras } = require("./cameras");
 const fs = require("fs");
 
 if (process.env.NODE_ENV !== "production") {
@@ -65,6 +64,13 @@ function initializeProvider() {
 };
 const loop = () => {
   initializeProvider();
+
+  // Delete the cached version of the cameras.js module
+  delete require.cache[require.resolve('./cameras')];
+
+  // Re-require the cameras.js module
+  const { cameras } = require('./cameras');
+
   getImage((src, imglocation) => {
     const img = new Image();
     img.src = src;
