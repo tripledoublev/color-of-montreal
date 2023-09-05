@@ -212,7 +212,7 @@ const getImage = (cameras, callback) => {
         // If the percentage is greater than 90%, fetch and process another image
         if (blackPixelPercentage >= 60) {
           console.log(`Skipping image due to high black pixel percentage: ${blackPixelPercentage}%`);
-          getImage(callback);  // Recursively call the function to process another image
+          getImage(cameras, callback);  // Recursively call the function to process another image
           return;
         }
 
@@ -293,7 +293,7 @@ const sendUpdate = async (name, hex, imglocation, { transactionHash, tokenId }) 
     const tweetText = `${name} est la couleur du ciel de ${LOCATION} au coin de ${imglocation}.`;
     const chainExplorerUrl = `https://optimistic.etherscan.io/tx/${transactionHash}`;
     const openSeaUrl = `https://opensea.io/assets/optimism/0x658cfa2c71F0eD3406d0a45BAd87D4C84a923E48/${tokenId}`;
-    const transactionText = `COULEURS #${tokenId}: ${name} was just minted on Optimism.\nEtherscan link: ${chainExplorerUrl}\nFrom ${imglocation} to OpenSea: ${openSeaUrl}`;
+    const transactionText = `COULEURS #${tokenId} was just minted on Optimism.\nEtherscan link: ${chainExplorerUrl}\n${hex}; ${imglocation} on OpenSea: ${openSeaUrl}`;
     //  Create tweet with media using v2
     const tweetResponse = await client.v2.tweetThread([ tweetText, { media: { media_ids: [mediaId] } }, transactionText,
     ]);
