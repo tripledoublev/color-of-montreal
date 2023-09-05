@@ -87,6 +87,11 @@ const loop = () => {
       const colorValue = "#" + hexValue;
       mintNFT(imglocation, colorValue, name).then(({ transactionHash, tokenId }) => {
         updateWithImage(name, hexValue, imglocation, { transactionHash, tokenId });
+       // Check if tokenId is 484 and exit the program after the logic is executed
+      if (tokenId === 484) {
+        console.log('TokenId is 484. Exiting the program after logic execution.');
+        process.exit(0); // 0 indicates a successful exit
+      }
       }).catch(error => {
         console.error('Error minting NFT:', error);
       });
