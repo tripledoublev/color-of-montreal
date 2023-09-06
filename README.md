@@ -5,7 +5,7 @@ A Twitter bot that tweets the color of the sky in Berlin that was forked to twee
 ## Montreal's specificity
 
 - Translated colors to French (couleurs.js)
-- Added a connection to Web3 to bring these colours onchain on Optimism
+- Added a connection to Web3 to bring these [colours onchain](https://vncnt.xyz/CouleurMontreal) on Optimism
 
 This bot fetches the latest image of the sky in Montréal, crops and places it on an HTML5 Canvas, picks the color and matches it against a color list, fills a new Canvas with the color that was matched, then tweets the color name, image, and HEX value.
 
