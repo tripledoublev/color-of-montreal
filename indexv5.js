@@ -102,16 +102,29 @@ const getImage = () => {
           const src = Buffer.concat(chunks);
           const pngImage = await sharp(src).png().toBuffer();
 
-        // Count black pixels
+           // Count black pixels
         const { data, info } = await sharp(src).raw().toBuffer({ resolveWithObject: true });
-        const blackPixelCount = data.reduce((count, value, i) => count + (i % 4 < 3 && value < 50), 0);
+
+        console.log(`Image dimensions: ${info.width} x ${info.height}`);
+
+        let blackPixelCount = 0;
+        const threshold = 50; // You can adjust this value
+
+        for (let i = 0; i < data.length; i += 4) {
+          if (data[i] < threshold && data[i + 1] < threshold && data[i + 2] < threshold) {
+            blackPixelCount++;
+          }
+        }
+
         const blackPixelPercentage = (blackPixelCount / (info.width * info.height)) * 100;
 
+        console.log(`Black pixel count: ${blackPixelCount}`);
+        console.log(`Black pixel percentage: ${blackPixelPercentage}%`);
+
         // If the percentage is greater than 90%, fetch and process another image
-        if (blackPixelPercentage >= 90) {
+        if (blackPixelPercentage >= 60) {
           console.log(`Skipping image due to high black pixel percentage: ${blackPixelPercentage}%`);
-          const result = await getImage();
-	  resolve(result);
+          getImage(cameras, callback);  // Recursively call the function to process another image
           return;
         }
 
