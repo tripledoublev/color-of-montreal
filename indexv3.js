@@ -74,6 +74,7 @@ const loop = () => {
     const times = suncalc.getTimes(new Date(), 45.508888, -73.561668);
 
   let currentHour = new Date().getHours();
+  console.log('Current hour:', currentHour);
   let nextTweetInMilliseconds;
 
   const totalRequests = 24;
@@ -260,7 +261,7 @@ const sendUpdate = async (name, hex, imglocation, { transactionHash, tokenId }) 
       const tweetText = `${name} est la couleur du ciel de ${LOCATION} au coin de ${imglocation}`;
       const chainExplorerUrl = `https://optimistic.etherscan.io/tx/${transactionHash}`;
       const openSeaUrl = `https://opensea.io/assets/optimism/0x658cfa2c71F0eD3406d0a45BAd87D4C84a923E48/${tokenId}`;
-      const transactionText = `COULEURS #${tokenId} was just minted on Optimism.\nTransaction Hash:\n${transactionHash}\nEtherscan link: ${chainExplorerUrl}\nSee it on OpenSea: ${openSeaUrl}`;
+      const transactionText = `COULEURS #${tokenId}: ${name} was just minted on Optimism.\nTransaction Hash:\n${transactionHash}\nEtherscan link: ${chainExplorerUrl}\nFrom ${imglocation} to OpenSea: ${openSeaUrl}`;
       //  Create tweet with media using v2
       const tweetResponse = await client.v2.tweetThread([{ media: { media_ids: [mediaId] }}, tweetText, transactionText,
         ]);

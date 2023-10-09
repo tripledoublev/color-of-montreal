@@ -1,5 +1,4 @@
-// v5 removes the web3 component
-// it fetches from cameras.js and has variations based on time of day
+// v6 uses a local mjpg stream to get an image of the sky from my window
 
 const { TwitterApi } = require('twitter-api-v2');
 const http = require("http");
@@ -11,6 +10,8 @@ const { getColor, findNearest, hex } = require("./tools");
 const { cameras } = require("./cameras");
 
 const fs = require("fs");
+
+let isExitTimerSet = false;
 
 if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
@@ -28,13 +29,26 @@ const LOCATION = process.env.LOCATION || "montréal";
 const SOURCE_IMAGE = process.env.SOURCE_IMAGE || 
   "https://ville.montreal.qc.ca/Circulation-Cameras/GEN547.jpeg";
 
+function getTimeUntilSunrise() {
+    const currentDate = new Date();
+    const times = suncalc.getTimes(currentDate, 45.508888, -73.561668);
+    const sunrise = times.sunrise;
+    
+    // Calculate the time difference (in milliseconds) between now and the sunrise time.
+    const timeUntilSunrise = sunrise - currentDate;
+
+    // If sunrise is already past, then set the delay to the next day's sunrise
+    return timeUntilSunrise > 0 ? timeUntilSunrise : (24 * 60 * 60 * 1000) + timeUntilSunrise;
+}
 
 let lastColor;
 
 const loop = async () => {
   try {
-    const { imgData, location } = await getImage();
-    console.log('got image');
+    const result = await getImage();
+        if (result) {
+            const { imgData, location } = result;
+            console.log('got image');   
     const img = new Image();
     img.src = imgData;
     const canvas = createCanvas();
@@ -48,7 +62,15 @@ const loop = async () => {
       setTimeout(() => sendUpdate(name, hexValue, location), 3000);
     } else {
       console.error("Error tweeting color: ", name);
-    } } catch (error) {
+    }
+ } else {
+            console.log('Image skipped due to high black pixel percentage.');
+            const delay = getTimeUntilSunrise();
+            console.log(`Delaying next image fetch until sunrise in ${delay / 1000 / 60 / 60} hours.`);
+            setTimeout(loop, delay);
+            return;  // exit the loop here
+        }
+ } catch (error) {
     console.error("Error in loop: ", error.message);
   }
   
@@ -61,13 +83,13 @@ const loop = async () => {
     sleep = 17 * 60 * 1000;
   } else if (currentDate > times.sunrise.getTime() + 30 * 60 * 1000 && currentDate < times.sunsetStart.getTime() - 60 * 60 * 1000) {
     console.log("After sunrise and before sunsetStart. Sunrise", new Date(times.sunrise.getTime() + 30 * 60 * 1000), ", Sunset: ", new Date(times.sunsetStart.getTime() - 60 * 60 * 1000));
-    sleep = 45 * 60 * 1000;
-  } else if (currentDate > times.sunsetStart.getTime() - 60 * 60 * 1000 && currentDate < times.dusk + 45 * 60 * 1000) {
-    console.log("After sunsetStart and before dusk. Dusk:", new Date(times.sunsetStart.getTime() - 60 * 60 * 1000), ", Dusk: ", new Date(times.dusk));
+    sleep = 40 * 60 * 1000;
+  } else if (currentDate > times.sunsetStart.getTime() - 90 * 60 * 1000 && currentDate < times.sunset + 60 * 60 * 1000) {
+    console.log("After sunsetStart - 1.5 h and 1 hour after sunset. Sunset:", new Date(times.sunsetStart.getTime() - 60 * 60 * 1000), ", Sunset: ", new Date(times.sunset));
     sleep = 16 * 60 * 1000;
   } else if (currentDate > times.dusk && currentDate < times.dawn.getTime() + 24 * 60 * 60 * 1000) {
     console.log("After dusk and before dawn. Dusk: ", new Date(times.dusk), ", Dawn ", new Date(times.dawn.getTime() + 1 * 60 * 60 * 1000));
-    sleep = 55 * 60 * 1000;
+    sleep = 92 * 60 * 1000;
   } else {
     console.log("No matching interval found. Current time: ", currentDate);
     sleep = 30 * 60 * 1000;
@@ -86,9 +108,11 @@ const loop = async () => {
 
 const getImage = () => {
   return new Promise((resolve, reject) => {
-    const randomIndex = Math.floor(Math.random() * cameras.length);
-    const randomImageUrl = cameras[randomIndex][1];
-    const imglocation = cameras[randomIndex][0];
+    //const randomIndex = Math.floor(Math.random() * cameras.length);
+    //const randomImageUrl = cameras[randomIndex][1];
+    //const imglocation = cameras[randomIndex][0];
+    const randomImageUrl = 'http://192.168.1.108:8085/?action=snapshot';
+    const imglocation = 'chez moi';
     console.log('Location: ' + imglocation);
 
     const sourceUrl = new URL(randomImageUrl);
@@ -103,10 +127,12 @@ const getImage = () => {
 
         res.on("end", async () => {
           const src = Buffer.concat(chunks);
-          const pngImage = await sharp(src).png().toBuffer();
-
+          const resizedImage = await sharp(src)
+    .resize(1280, 720) // resizing the image
+    .jpeg({ quality: 80 }) // converting to jpeg with 80% quality for further compression
+    .toBuffer();
            // Count black pixels
-        const { data, info } = await sharp(src).raw().toBuffer({ resolveWithObject: true });
+        const { data, info } = await sharp(resizedImage).raw().toBuffer({ resolveWithObject: true });
 
         console.log(`Image dimensions: ${info.width} x ${info.height}`);
 
@@ -124,15 +150,11 @@ const getImage = () => {
         console.log(`Black pixel count: ${blackPixelCount}`);
         console.log(`Black pixel percentage: ${blackPixelPercentage}%`);
 
-// If the percentage is greater than 60%, fetch and process another image
 if (blackPixelPercentage >= 60) {
-  console.log(`Skipping image due to high black pixel percentage: ${blackPixelPercentage}%`);
-  return getImage()  // Recursively call the function to process another image
-    .then(resolve)
-    .catch(reject);
-  return;
+    console.log(`Skipping image due to high black pixel percentage: ${blackPixelPercentage}%`);
+    resolve(null);
+    return;
 }
-
 	console.log('new image');
         const img = new Image();
         img.onload = async () => {
@@ -140,13 +162,12 @@ if (blackPixelPercentage >= 60) {
           const canvas = createCanvas(img.width, img.height);
           const ctx = canvas.getContext("2d");
 
-          const overlayPercentage = 0.4;  // 40% of the original image's dimensions
-	  const overlayWidth = img.width * overlayPercentage;
+          const overlayPercentage = 0.2;  // 20% of the original image's dimensions
 	  const overlayHeight = img.height * overlayPercentage;
-
+          const overlayWidth = overlayHeight;
 	  // Calculate the starting point to center the overlay
 	  const startX = (img.width - overlayWidth) / 2;
-	  const startY = (img.height - overlayHeight) / 2;
+          const startY = ((img.height / 3) * 2) - (overlayHeight / 2);
 
           // Draw the original image on the left half of the canvas
           ctx.drawImage(img, 0, 0);
@@ -176,8 +197,8 @@ if (blackPixelPercentage >= 60) {
 
         };
         img.onerror = err => { reject(err) };  // Add this line to catch any errors
-        img.src = 'data:image/png;base64,' + pngImage.toString('base64');  // Convert Buffer to base64 data URL
-        resolve({ imgData: pngImage, location: imglocation });
+        img.src = 'data:image/jpeg;base64,' + resizedImage.toString('base64');  // Convert Buffer to base64 data URL
+        resolve({ imgData: resizedImage, location: imglocation });
     
       });
     } else {
