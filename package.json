@@ -7,9 +7,18 @@
     "prettier:write": "prettier --write ."
   },
   "dependencies": {
-    "canvas": "2.6.1",
+    "@truffle/hdwallet-provider": "^2.1.13",
+    "axios": "^1.4.0",
+    "canvas": "^2.11.2",
+    "crypto": "^1.0.1",
     "dotenv": "8.2.0",
-    "twitter": "1.7.1"
+    "ethereumjs-wallet": "^1.0.2",
+    "opencv.js": "^1.2.1",
+    "sharp": "^0.32.1",
+    "suncalc": "^1.9.0",
+    "twitter": "1.7.1",
+    "twitter-api-v2": "^1.15.0",
+    "web3": "^4.0.3"
   },
   "devDependencies": {
     "prettier": "2.0.4"

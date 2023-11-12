@@ -1,4 +1,4 @@
-const { colors } = require("./colors");
+const { couleurs } = require("./couleurs");
 
 const getColor = (img, canvas) => {
   const ctx = canvas.getContext("2d");
@@ -6,7 +6,7 @@ const getColor = (img, canvas) => {
   canvas.height = img.height;
   ctx.drawImage(img, 0, 0);
 
-  const data = ctx.getImageData(0, 0, img.width / 2, img.height / 2).data;
+  const data = ctx.getImageData((img.width / 12) * 5, (img.height / 24) * 1, (img.width / 12) * 6, (img.height / 12) * 2).data;
   const color = [data[4], data[5], data[6]];
 
   return color;
@@ -21,7 +21,7 @@ const hex = (color) => {
 };
 
 const findNearest = (rgb) => {
-  return colors
+  return couleurs
     .map((color) => {
       return {
         d: colorDistance(rgb, color[1]),
