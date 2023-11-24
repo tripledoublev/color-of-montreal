@@ -159,7 +159,7 @@ if (blackPixelPercentage >= 60) {
 
           // Save the image data to a file in the archive folder
           const timestamp = new Date().toISOString().replace(/:/g, '-');
-          const filename = `archive/${timestamp}_${imglocation}.webp`;
+          const filename = `archive/${timestamp}_${imglocation}_${hexValue}.webp`;
 
           const out = fs.createWriteStream(filename);
           const pngStream = canvas.createPNGStream();
@@ -211,7 +211,7 @@ const updateWithImage = (name, hex, imglocation) => {
 
   const dataURL = canvas.toDataURL().replace(/^data:image\/png;base64,/, "");
 
-  return fs.writeFile("couleurs/${timestamp}_${imglocation}.png", dataURL, "base64", (err) => {
+  return fs.writeFile(`couleurs/${timestamp}_${imglocation}_${name}_${hex}.png`, dataURL, "base64", (err) => {
     if (err) throw err;
     sendUpdate(name, hex, imglocation);
   });
@@ -219,9 +219,8 @@ const updateWithImage = (name, hex, imglocation) => {
 
 const sendUpdate = async (name, hex, imglocation) => {
     try {
-	console.log('will update');
+	  console.log(`x update ${name}`);
       
-      console.log('check if file exists');
       if (!fs.existsSync('./output.png')) {
     	console.error('File output.png does not exist.');
     	return;
