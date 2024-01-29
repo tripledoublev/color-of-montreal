@@ -56,18 +56,19 @@ const loop = async () => {
  const currentDate = new Date();
   const times = suncalc.getTimes(currentDate, 45.508888, -73.561668);
   let sleep;
-  if (currentDate > times.dawn && currentDate < times.sunrise.getTime() + 30 * 60 * 1000) {
+  console.log(times);
+  if (currentDate > times.dawn - 30 * 60 * 1000 && currentDate < times.sunrise.getTime() + 30 * 60 * 1000) {
     console.log("After dawn and before sunrise Dawn: ", new Date(times.dawn), ", Sunrise: ", new Date(times.sunrise.getTime() + 30 * 60 * 1000));
-    sleep = 17 * 60 * 1000;
+    sleep = 9 * 60 * 1000;
   } else if (currentDate > times.sunrise.getTime() + 30 * 60 * 1000 && currentDate < times.sunsetStart.getTime() - 60 * 60 * 1000) {
     console.log("After sunrise and before sunsetStart. Sunrise", new Date(times.sunrise.getTime() + 30 * 60 * 1000), ", Sunset: ", new Date(times.sunsetStart.getTime() - 60 * 60 * 1000));
-    sleep = 45 * 60 * 1000;
-  } else if (currentDate > times.sunsetStart.getTime() - 60 * 60 * 1000 && currentDate < times.dusk + 45 * 60 * 1000) {
-    console.log("After sunsetStart and before dusk. Dusk:", new Date(times.sunsetStart.getTime() - 60 * 60 * 1000), ", Dusk: ", new Date(times.dusk));
-    sleep = 16 * 60 * 1000;
+    sleep = 25 * 60 * 1000;
+  } else if (currentDate > times.sunsetStart.getTime() - 30 * 60 * 1000 && currentDate < times.dusk.getTime()) {
+    console.log("After 30 mins before sunsetStart and before dusk. Sunset start:", new Date(times.sunsetStart.getTime()), ", Dusk: ", new Date(times.dusk.getTime()));
+    sleep = 7 * 60 * 1000;
   } else if (currentDate > times.dusk && currentDate < times.dawn.getTime() + 24 * 60 * 60 * 1000) {
     console.log("After dusk and before dawn. Dusk: ", new Date(times.dusk), ", Dawn ", new Date(times.dawn.getTime() + 1 * 60 * 60 * 1000));
-    sleep = 55 * 60 * 1000;
+    sleep = 125 * 60 * 1000;
   } else {
     console.log("No matching interval found. Current time: ", currentDate);
     sleep = 30 * 60 * 1000;
