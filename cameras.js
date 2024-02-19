@@ -5,6 +5,7 @@ const cameras = [
     ["Acadie & Cremazie N", "https://ville.montreal.qc.ca/Circulation-Cameras/GEN118.jpeg"],
     ["Charon & Wellington", "https://ville.montreal.qc.ca/Circulation-Cameras/GEN120.jpeg"],
     ["Henri-Bourassa & Lajeunesse", "https://ville.montreal.qc.ca/Circulation-Cameras/GEN122.jpeg"],
+    ["Hutchison, Jean-talon, Parc", "https://ville.montreal.qc.ca/Circulation-Cameras/GEN44.jpeg"],
     ["Forest & Pie-IX", 
 "https://ville.montreal.qc.ca/Circulation-Cameras/GEN556.jpeg"],
     ["Jarry & St-Denis", "https://ville.montreal.qc.ca/Circulation-Cameras/GEN75.jpeg"],
