@@ -7,6 +7,11 @@ import { getImage } from './services/image.js';
 import config from './config/index.js';
 import { getSleepInterval } from './services/timing.js';
 import { updateMetadata } from './services/metadata.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const rootDir = path.resolve(__dirname, '..');
 
 const loop = async () => {
   try {
@@ -21,10 +26,14 @@ const loop = async () => {
     const text = `${name} est la couleur du ciel de ${config.location}`;
     
     // Optimize image for social media
-    const optimizedImagePath = './output-optimized.webp';
+    const outputPath = path.join(rootDir, 'output.png');
+    const optimizedImagePath = path.join(rootDir, 'output-optimized.webp');
     console.log('Optimizing image...');
-    await optimizeImage('./output.png', optimizedImagePath);
+    await optimizeImage(outputPath, optimizedImagePath);
     console.log('Image optimization complete');
+    
+    // Add a small delay to ensure file is written
+    await new Promise(resolve => setTimeout(resolve, 1000));
     
     // Update metadata
     console.log('Updating metadata...');
@@ -42,7 +51,7 @@ const loop = async () => {
     
     if (config.platforms.twitter) {
       console.log('Twitter enabled - adding to post queue');
-      platformPosts.push(postToTwitter(text, './output.png'));
+      platformPosts.push(postToTwitter(text, optimizedImagePath));
     }
     if (config.platforms.bluesky) {
       console.log('Bluesky enabled - adding to post queue');
@@ -50,7 +59,7 @@ const loop = async () => {
     }
     if (config.platforms.mastodon) {
       console.log('Mastodon enabled - adding to post queue');
-      platformPosts.push(postToMastodon(text, './output.png'));
+      platformPosts.push(postToMastodon(text, optimizedImagePath));
     }
     
     // Post to enabled platforms
