@@ -74,7 +74,7 @@ const getImage = () => {
 
             // Update metadata and upload to FTP
             await updateMetadata({
-              filename,
+              filename, // Use the WebP version for metadata and FTP
               location: config.camera.location,
               color: {
                 name: findNearest(color),
