@@ -1,11 +1,11 @@
-const http = require("http");
-const https = require("https");
-const sharp = require('sharp');
-const { Image, createCanvas } = require("canvas");
-const { getColor, findNearest, hex } = require("../../tools");
-const config = require('../config');
-const fs = require('fs').promises;
-const { updateMetadata } = require('./metadata');
+import http from "http";
+import https from "https";
+import sharp from 'sharp';
+import { Image, createCanvas } from "canvas";
+import { getColor, findNearest, hex } from "../../tools.js";
+import config from '../config/index.js';
+import { promises as fs } from 'fs';
+import { updateMetadata } from './metadata.js';
 
 const streamToBuffer = (stream) => {
   return new Promise((resolve, reject) => {
@@ -42,17 +42,24 @@ const getImage = () => {
             // Draw the original image
             ctx.drawImage(img, 0, 0);
 
-            // Calculate overlay dimensions - 20% wide and 40% tall
-            const overlayWidth = img.width * 0.2;  // 20% of width
-            const overlayHeight = img.height * 0.4; // 40% of height
-
-            // Calculate the starting point to center the overlay
+            // new dimensions based on visual analysis
+            const overlayWidth = img.width * 0.1392;     // wider
+            const overlayHeight = img.height * 0.4427;   // same
             const startX = (img.width - overlayWidth) / 2;
-            const startY = (img.height - overlayHeight) / 2;
+            const startY = img.height * 0.45;      
+
+            // Get the color data
+            const tempCanvas = createCanvas();
+            const tempCtx = tempCanvas.getContext("2d");
+            tempCanvas.width = img.width;
+            tempCanvas.height = img.height;
+            tempCtx.drawImage(img, 0, 0);
+            const data = tempCtx.getImageData((img.width / 12) * 5, (img.height / 24) * 1, (img.width / 12) * 6, (img.height / 12) * 2).data;
+            const color = [data[0], data[1], data[2]];
+            const hexValue = hex(color);
+            const name = findNearest(color);
 
             // Fill the overlay with the hex color
-            const color = getColor(img, createCanvas());
-            const hexValue = hex(color);
             ctx.fillStyle = `#${hexValue}`;
             ctx.fillRect(startX, startY, overlayWidth, overlayHeight);
 
@@ -77,7 +84,7 @@ const getImage = () => {
               filename, // Use the WebP version for metadata and FTP
               location: config.camera.location,
               color: {
-                name: findNearest(color),
+                name,
                 hex: hexValue
               }
             });
@@ -86,7 +93,7 @@ const getImage = () => {
               imgData: pngImage, 
               location: config.camera.location,
               color: {
-                name: findNearest(color),
+                name,
                 hex: hexValue
               }
             });
@@ -105,6 +112,6 @@ const getImage = () => {
   });
 };
 
-module.exports = {
+export {
   getImage
 }; 
