@@ -1,5 +1,5 @@
-const suncalc = require('suncalc');
-const config = require('../config');
+import suncalc from 'suncalc';
+import config from '../config/index.js';
 
 // Keep track of last daytime interval to alternate
 let lastDayInterval = 56;
@@ -40,6 +40,6 @@ const getSleepInterval = (currentDate) => {
   return 9 * 60 * 1000;
 };
 
-module.exports = {
+export {
   getSleepInterval
 }; 
