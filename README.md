@@ -50,23 +50,38 @@ src/
 In the project root, create an `.env` file or make a copy of the `.env.example` file, containing the following environment variables with the required values:
 
 ```
-# Twitter/X Configuration
-TWITTER_API_CONSUMER_KEY=
-TWITTER_API_CONSUMER_SECRET=
-TWITTER_API_TOKEN=
-TWITTER_API_TOKEN_SECRET=
+# Location settings
+LOCATION=yourcity
 
-# Bluesky Configuration
-BLUESKY_IDENTIFIER=
-BLUESKY_PASSWORD=
+# Camera Settings
+CAMERA_URL=http://your.camera.ip:port/out.jpg
 
-# Mastodon Configuration
-MASTODON_INSTANCE_URL=
-MASTODON_ACCESS_TOKEN=
+# FTP Settings
+FTP_HOST=your_ftp_host
+FTP_USER=your_ftp_username
+FTP_PASSWORD=your_ftp_password
+FTP_PORT=21
 
-# General Configuration
-SOURCE_IMAGE=
-LOCATION=
+# Twitter API Credentials
+TWITTER_API_KEY=your_twitter_api_key
+TWITTER_API_SECRET=your_twitter_api_secret
+TWITTER_ACCESS_TOKEN=your_twitter_access_token
+TWITTER_ACCESS_SECRET=your_twitter_access_secret
+
+# Bluesky Credentials
+BLUESKY_HANDLE=your.bsky.social
+BLUESKY_PASSWORD=your_bluesky_password
+
+# Mastodon Credentials
+MASTODON_INSTANCE_URL=https://your.mastodon.instance
+MASTODON_CLIENT_KEY=your_mastodon_client_key
+MASTODON_CLIENT_SECRET=your_mastodon_client_secret
+MASTODON_ACCESS_TOKEN=your_mastodon_access_token
+
+# Social Media Platform Toggles
+ENABLE_TWITTER=true
+ENABLE_BLUESKY=true
+ENABLE_MASTODON=true
 ```
 
 ## Send a post
