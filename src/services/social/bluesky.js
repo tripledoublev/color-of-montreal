@@ -1,54 +1,62 @@
-const { BskyAgent } = require('@atproto/api');
-const config = require('../../config');
-const fs = require('fs').promises;
+import { BskyAgent } from '@atproto/api';
+import { promises as fs } from 'fs';
+import config from '../../config/index.js';
+import sharp from 'sharp';
 
-const blueskyAgent = new BskyAgent({
+const agent = new BskyAgent({
   service: 'https://bsky.social'
 });
 
 const initBluesky = async () => {
   try {
-    await blueskyAgent.login({
+    console.log('Initializing Bluesky session...');
+    console.log('Using handle:', config.bluesky.handle);
+    await agent.login({
       identifier: config.bluesky.handle,
       password: config.bluesky.password
     });
-    console.log('Bluesky session initialized');
+    console.log('Bluesky session initialized successfully');
   } catch (err) {
     console.error('Error initializing Bluesky session:', err);
+    if (err.response) {
+      console.error('Response data:', err.response.data);
+      console.error('Response status:', err.response.status);
+    }
     throw err;
   }
 };
 
 const postToBluesky = async (text, imagePath) => {
   try {
-    // Read and upload image
-    const imageBuffer = await fs.readFile(imagePath);
-    const uploadResponse = await blueskyAgent.uploadBlob(imageBuffer, {
-      encoding: 'image/png'
+    await agent.login({
+      identifier: config.bluesky.username,
+      password: config.bluesky.password
     });
 
-    // Create post with image
-    const postResponse = await blueskyAgent.post({
+    const imageBuffer = await fs.readFile(imagePath);
+    const imageUpload = await agent.uploadBlob(imageBuffer, {
+      encoding: 'image/webp'
+    });
+
+    await agent.post({
       text,
       embed: {
         $type: 'app.bsky.embed.images',
         images: [{
-          image: uploadResponse.blob,
-          alt: text
+          image: imageUpload.blob,
+          alt: 'Color of Montreal'
         }]
-      },
-      createdAt: new Date().toISOString()
+      }
     });
 
-    console.log('Bluesky status updated:', text);
-    return postResponse;
+    console.log('Posted to Bluesky successfully');
   } catch (err) {
     console.error('Error posting to Bluesky:', err);
     throw err;
   }
 };
 
-module.exports = {
+export {
   initBluesky,
   postToBluesky
 }; 
