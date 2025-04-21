@@ -1,41 +1,30 @@
-const sharp = require('sharp');
-const fs = require('fs').promises;
+import sharp from 'sharp';
+import { promises as fs } from 'fs';
 
 const MAX_FILE_SIZE = 1000000; // 1MB in bytes
 const QUALITY_STEP = 5; // Decrease quality by 5% each iteration
 
 const optimizeImage = async (inputPath, outputPath) => {
   try {
-    let quality = 100;
-    let currentSize = 0;
+    const imageBuffer = await fs.readFile(inputPath);
+    const metadata = await sharp(imageBuffer).metadata();
     
-    do {
-      // Convert to WebP with current quality
-      await sharp(inputPath)
-        .webp({ quality })
-        .toFile(outputPath);
-      
-      // Check file size
-      const stats = await fs.stat(outputPath);
-      currentSize = stats.size;
-      
-      // If still too large, reduce quality
-      if (currentSize > MAX_FILE_SIZE) {
-        quality -= QUALITY_STEP;
-        if (quality <= 0) {
-          throw new Error('Could not compress image to acceptable size');
-        }
-      }
-    } while (currentSize > MAX_FILE_SIZE);
+    // Resize if needed
+    let pipeline = sharp(imageBuffer);
+    if (metadata.width > 1000 || metadata.height > 1000) {
+      pipeline = pipeline.resize(1000, 1000, { fit: 'inside' });
+    }
     
-    console.log(`Image optimized to ${(currentSize / 1024).toFixed(2)}KB with quality ${quality}%`);
+    // Convert to WebP with quality 80
+    await pipeline
+      .webp({ quality: 80 })
+      .toFile(outputPath);
+      
     return outputPath;
-  } catch (error) {
-    console.error('Error optimizing image:', error);
-    throw error;
+  } catch (err) {
+    console.error('Error optimizing image:', err);
+    throw err;
   }
 };
 
-module.exports = {
-  optimizeImage
-}; 
+export { optimizeImage }; 
