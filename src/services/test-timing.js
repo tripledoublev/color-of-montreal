@@ -1,6 +1,6 @@
-const { getSleepInterval } = require('./timing');
-const suncalc = require('suncalc');
-const config = require('../config');
+import { getSleepInterval } from './timing.js';
+import suncalc from 'suncalc';
+import config from '../config/index.js';
 
 // Function to format time in local timezone
 const formatLocalTime = (date) => {

@@ -1,9 +1,9 @@
-const { getImage } = require('./services/image');
-const { getSleepInterval } = require('./services/timing');
-const config = require('./config');
-const fs = require('fs').promises;
-const path = require('path');
-const suncalc = require('suncalc');
+import { getImage } from './services/image/index.js';
+import { getSleepInterval } from './services/timing.js';
+import config from './config/index.js';
+import { promises as fs } from 'fs';
+import path from 'path';
+import suncalc from 'suncalc';
 
 const testImage = async () => {
   try {
