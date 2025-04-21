@@ -1,7 +1,5 @@
-// v5 removes the web3 component
-// it fetches from cameras.js and has variations based on time of day
+// super archival mode
 
-const { TwitterApi } = require('twitter-api-v2');
 const http = require("http");
 const https = require("https");
 const sharp = require('sharp');
@@ -16,63 +14,61 @@ if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }
 
-// These keys and tokens are necessary for user context authentication
-const client = new TwitterApi({
-  appKey: process.env.TWITTER_API_CONSUMER_KEY,
-  appSecret: process.env.TWITTER_API_CONSUMER_SECRET,
-  accessToken: process.env.TWITTER_API_TOKEN,
-  accessSecret: process.env.TWITTER_API_TOKEN_SECRET,
-});
-
 const LOCATION = process.env.LOCATION || "montréal";
-const SOURCE_IMAGE = process.env.SOURCE_IMAGE || 
-  "https://ville.montreal.qc.ca/Circulation-Cameras/GEN547.jpeg";
-
 
 let lastColor;
+let currentCameraIndex = 0;
+
+// Check if a command line argument is provided for the initial index
+if (process.argv.length > 2) {
+  let inputIndex = parseInt(process.argv[2]);
+  if (!isNaN(inputIndex) && inputIndex >= 0 && inputIndex < cameras.length) {
+      currentCameraIndex = inputIndex;
+  } else {
+      console.error("Invalid initial index provided. Using default index 0.");
+  }
+}
 
 const loop = async () => {
+  if (currentCameraIndex >= cameras.length) {
+    currentCameraIndex = 0;
+  }
   try {
-    const { imgData, location } = await getImage();
+    const { imgData, location } = await getImage(currentCameraIndex);
     console.log('got image');
     const img = new Image();
     img.src = imgData;
     const canvas = createCanvas();
     const color = getColor(img, canvas);
-    const hexValue = hex(color);
+
     const name = findNearest(color);
     console.log(name);
-    if (lastColor != name) {
-      lastColor = name;
-      console.log('sending update');
-      setTimeout(() => sendUpdate(name, hexValue, location), 3000);
-    } else {
-      console.error("Error tweeting color: ", name);
-    } } catch (error) {
+  } catch (error) {
     console.error("Error in loop: ", error.message);
   }
   
 
  const currentDate = new Date();
   const times = suncalc.getTimes(currentDate, 45.508888, -73.561668);
-  let sleep;
-  console.log(times);
-  if (currentDate > times.dawn - 30 * 60 * 1000 && currentDate < times.sunrise.getTime() + 30 * 60 * 1000) {
+  let sleep = 720000 / cameras.length;
+
+  // this is the code that introduces interval variations/. it is not used in archival mode
+  /* if (currentDate > times.dawn && currentDate < times.sunrise.getTime() + 30 * 60 * 1000) {
     console.log("After dawn and before sunrise Dawn: ", new Date(times.dawn), ", Sunrise: ", new Date(times.sunrise.getTime() + 30 * 60 * 1000));
-    sleep = 9 * 60 * 1000;
+    sleep = 17 * 60 * 1000;
   } else if (currentDate > times.sunrise.getTime() + 30 * 60 * 1000 && currentDate < times.sunsetStart.getTime() - 60 * 60 * 1000) {
     console.log("After sunrise and before sunsetStart. Sunrise", new Date(times.sunrise.getTime() + 30 * 60 * 1000), ", Sunset: ", new Date(times.sunsetStart.getTime() - 60 * 60 * 1000));
-    sleep = 25 * 60 * 1000;
-  } else if (currentDate > times.sunsetStart.getTime() - 30 * 60 * 1000 && currentDate < times.dusk.getTime()) {
-    console.log("After 30 mins before sunsetStart and before dusk. Sunset start:", new Date(times.sunsetStart.getTime()), ", Dusk: ", new Date(times.dusk.getTime()));
-    sleep = 7 * 60 * 1000;
+    sleep = 45 * 60 * 1000;
+  } else if (currentDate > times.sunsetStart.getTime() - 60 * 60 * 1000 && currentDate < times.dusk + 45 * 60 * 1000) {
+    console.log("After sunsetStart and before dusk. Dusk:", new Date(times.sunsetStart.getTime() - 60 * 60 * 1000), ", Dusk: ", new Date(times.dusk));
+    sleep = 16 * 60 * 1000;
   } else if (currentDate > times.dusk && currentDate < times.dawn.getTime() + 24 * 60 * 60 * 1000) {
     console.log("After dusk and before dawn. Dusk: ", new Date(times.dusk), ", Dawn ", new Date(times.dawn.getTime() + 1 * 60 * 60 * 1000));
-    sleep = 125 * 60 * 1000;
+    sleep = 55 * 60 * 1000;
   } else {
     console.log("No matching interval found. Current time: ", currentDate);
     sleep = 30 * 60 * 1000;
-  }
+  } */
   console.log(
     "Bot is sleeping for " +
     sleep / 60 / 1000 +
@@ -82,14 +78,14 @@ const loop = async () => {
   );
 
   setTimeout(loop, sleep);
+  currentCameraIndex++;
 };
 
 
-const getImage = () => {
+const getImage = (cameraIndex) => {
   return new Promise((resolve, reject) => {
-    const randomIndex = Math.floor(Math.random() * cameras.length);
-    const randomImageUrl = cameras[randomIndex][1];
-    const imglocation = cameras[randomIndex][0];
+    const randomImageUrl = cameras[cameraIndex][1];
+    const imglocation = cameras[cameraIndex][0];
     console.log('Location: ' + imglocation);
 
     const sourceUrl = new URL(randomImageUrl);
@@ -128,16 +124,17 @@ const getImage = () => {
 // If the percentage is greater than 60%, fetch and process another image
 if (blackPixelPercentage >= 60) {
   console.log(`Skipping image due to high black pixel percentage: ${blackPixelPercentage}%`);
-  return getImage()  // Recursively call the function to process another image
+  currentCameraIndex = (currentCameraIndex + 1) % cameras.length; // Increase the index by 1 and loop back to 0 if it exceeds the number of cameras
+  return getImage(currentCameraIndex) // Recursively call the function to process the next image
     .then(resolve)
     .catch(reject);
   return;
 }
 
-	console.log('new image');
+
         const img = new Image();
         img.onload = async () => {
-	  console.log('image loaded');
+
           const canvas = createCanvas(img.width, img.height);
           const ctx = canvas.getContext("2d");
 
@@ -159,21 +156,26 @@ if (blackPixelPercentage >= 60) {
           ctx.fillRect(startX, startY, overlayWidth, overlayHeight);
 
           // Save the image data to a file in the archive folder
+          const sanitizedLocation = imglocation.replace(/[\s&]/g, '_'); // Replace spaces and '&' with underscores
+          const dir = `archive/${sanitizedLocation}`;
+      
+          if (!fs.existsSync(dir)){
+            fs.mkdirSync(dir, { recursive: true }); // Create the directory if it doesn't exist
+          }
+      
           const timestamp = new Date().toISOString().replace(/:/g, '-');
-          const filename = `archive/${timestamp}_${imglocation}_${hexValue}.webp`;
+          const filename = `${timestamp}__${hexValue}.webp`;
+          const filePath = `${dir}/${filename}`;
+    
 
-          const out = fs.createWriteStream(filename);
+          // Create a write stream with the correct file path
+          const out = fs.createWriteStream(filePath);
           const pngStream = canvas.createPNGStream();
 
           // Convert the PNG stream to WebP using sharp and save it to a file
-          await sharp(await streamToBuffer(pngStream)).webp().toFile(filename);
+          await sharp(await streamToBuffer(pngStream)).webp().toFile(filePath);
 
-          console.log('Image saved to archive: ', filename);
-
-          // Save the PNG version as a temporary file
-          const tempFilename = "output.png";
-	  console.log('saved output');
-          await sharp(await streamToBuffer(canvas.createPNGStream())).png().toFile(tempFilename);
+          console.log('Image saved to archive: ', filePath);
 
         };
         img.onerror = err => { reject(err) };  // Add this line to catch any errors
@@ -202,44 +204,6 @@ function streamToBuffer(stream) {
   });
 }
 
-const updateWithImage = (name, hex, imglocation) => {
-  const canvas = createCanvas();
-  const ctx = canvas.getContext("2d");
-  canvas.width = 400;
-  canvas.height = 225;
-  ctx.fillStyle = `#${hex}`;
-  ctx.fillRect(0, 0, 400, 225);
 
-  const dataURL = canvas.toDataURL().replace(/^data:image\/png;base64,/, "");
-
-  return fs.writeFile(`couleurs/${timestamp}_${imglocation}_${name}_${hex}.png`, dataURL, "base64", (err) => {
-    if (err) throw err;
-    sendUpdate(name, hex, imglocation);
-  });
-};
-
-const sendUpdate = async (name, hex, imglocation) => {
-    try {
-	  console.log(`x update ${name}`);
-      
-      if (!fs.existsSync('./output.png')) {
-    	console.error('File output.png does not exist.');
-    	return;
-      }
-
-      // Upload media using v1.1
-      const mediaId = await client.v1.uploadMedia("./output.png");
-
-      // Tweet text
-      const tweetText = `${name} est la couleur du ciel de ${LOCATION}`;
-      // Create tweet with media using v2
-      const tweetResponse = await client.v2.tweetThread([{ text: tweetText, media: { media_ids: [mediaId] }}]);
-      console.log('Status updated.');
-      console.log('Tweeted', tweetText);
-
-    } catch (err) {
-      console.error('Error in sendUpdate:', err);
-    }
-};
 
 loop();

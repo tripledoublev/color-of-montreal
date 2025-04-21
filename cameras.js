@@ -15,7 +15,6 @@ const cameras = [
     ["Beaubien & Galeries-D'anjou", "https://ville.montreal.qc.ca/Circulation-Cameras/GEN560.jpeg"],
     ["Dickson & Souligny", "https://ville.montreal.qc.ca/Circulation-Cameras/GEN56.jpeg"],
     ["Cremazie & Papineau", "https://ville.montreal.qc.ca/Circulation-Cameras/GEN42.jpeg"],
-    ["Acadie & Beaumont", "https://ville.montreal.qc.ca/Circulation-Cameras/GEN100.jpeg"],
     ["Frontenac & Notre-Dame", "https://ville.montreal.qc.ca/Circulation-Cameras/GEN70.jpeg"],
 ];
 

@@ -1,26 +1,22 @@
 {
   "name": "color-of-montreal",
-  "version": "0.0.1",
-  "description": "The color of the sky in Montreal.",
+  "version": "1.0.0",
+  "description": "A bot that posts the color of Montreal's sky every hour",
+  "type": "module",
+  "main": "src/main.js",
   "scripts": {
-    "prettier:check": "prettier --check .",
-    "prettier:write": "prettier --write ."
+    "start": "node src/main.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@truffle/hdwallet-provider": "^2.1.13",
-    "axios": "^1.4.0",
+    "@atproto/api": "^0.12.2",
+    "axios": "^1.6.7",
     "canvas": "^2.11.2",
-    "crypto": "^1.0.1",
-    "dotenv": "8.2.0",
-    "ethereumjs-wallet": "^1.0.2",
-    "opencv.js": "^1.2.1",
-    "sharp": "^0.32.1",
+    "dotenv": "^16.4.5",
+    "ftp": "^0.3.10",
+    "masto": "^6.0.0",
+    "sharp": "^0.33.2",
     "suncalc": "^1.9.0",
-    "twitter": "1.7.1",
-    "twitter-api-v2": "^1.15.0",
-    "web3": "^4.0.3"
-  },
-  "devDependencies": {
-    "prettier": "2.0.4"
+    "twitter-api-v2": "^1.16.0"
   }
 }
