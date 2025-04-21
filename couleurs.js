@@ -1,4 +1,4 @@
-const couleurs = [
+export const couleurs = [
     ["bleu supériorité aérienne", [114, 160, 193]],
     ["bleu alice", [240, 248, 255]],
     ["cramoisi d'alizarine", [227, 38, 54]],
@@ -767,5 +767,3 @@ const couleurs = [
     ["zaffre", [0, 20, 168]],
     ["brun zinnwaldite", [44, 22, 8]],
 ];
-
-exports.couleurs = couleurs;
