@@ -1,15 +1,19 @@
-const { couleurs } = require("./couleurs");
+import { couleurs } from './couleurs.js';
+import { createCanvas, loadImage } from 'canvas';
 
-const getColor = (img, canvas) => {
+const getColor = async (imagePath) => {
+  const img = await loadImage(imagePath);
+  const canvas = createCanvas(img.width, img.height);
   const ctx = canvas.getContext("2d");
-  canvas.width = img.width;
-  canvas.height = img.height;
   ctx.drawImage(img, 0, 0);
 
   const data = ctx.getImageData((img.width / 12) * 5, (img.height / 24) * 1, (img.width / 12) * 6, (img.height / 12) * 2).data;
-  const color = [data[4], data[5], data[6]];
+  const color = [data[0], data[1], data[2]];
 
-  return color;
+  return {
+    hex: '#' + hex(color),
+    name: findNearest(color)
+  };
 };
 
 const hex = (color) => {
@@ -41,6 +45,8 @@ const colorDistance = (color1, color2) => {
   );
 };
 
-exports.getColor = getColor;
-exports.hex = hex;
-exports.findNearest = findNearest;
+export {
+  getColor,
+  hex,
+  findNearest
+};
