@@ -12,35 +12,45 @@ const config = {
 
 const METADATA_FILE = 'home-metadata.json';
 const METADATA_URL = 'https://www.tripledoublev.com/couleur/at-home/home-metadata.json';
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 1000; // 1 second
 
-const fetchMetadata = () => {
-  return new Promise((resolve, reject) => {
-    console.log('Fetching metadata from:', METADATA_URL);
-    https.get(METADATA_URL, (res) => {
-      let data = '';
-      res.on('data', (chunk) => data += chunk);
-      res.on('end', () => {
-        console.log('Received metadata');
-        try {
-          const metadata = JSON.parse(data);
-          if (!metadata || !Array.isArray(metadata.images)) {
-            console.error('Invalid metadata structure:', metadata);
-            reject(new Error('Invalid metadata structure'));
-            return;
-          }
-          console.log('Successfully parsed metadata with', metadata.images.length, 'entries');
-          resolve(metadata);
-        } catch (err) {
-          console.error('Failed to parse metadata:', err);
-          console.error('Raw data:', data);
-          reject(new Error('Failed to parse metadata from website'));
-        }
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+const fetchMetadata = async (retries = MAX_RETRIES) => {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const metadata = await new Promise((resolve, reject) => {
+        https.get(METADATA_URL, (res) => {
+          let data = '';
+          res.on('data', (chunk) => data += chunk);
+          res.on('end', () => {
+            try {
+              const parsed = JSON.parse(data);
+              if (!parsed || !Array.isArray(parsed.images)) {
+                reject(new Error('Invalid metadata structure'));
+                return;
+              }
+              resolve(parsed);
+            } catch (err) {
+              reject(new Error('Failed to parse metadata'));
+            }
+          });
+        }).on('error', (err) => {
+          reject(new Error('Failed to fetch metadata'));
+        });
       });
-    }).on('error', (err) => {
-      console.error('Failed to fetch metadata:', err);
-      reject(new Error('Failed to fetch metadata from website'));
-    });
-  });
+      
+      console.log(`Metadata fetched successfully (${metadata.images.length} entries)`);
+      return metadata;
+    } catch (err) {
+      if (attempt === retries) {
+        throw err;
+      }
+      console.log(`Retrying metadata fetch (attempt ${attempt + 1}/${retries})...`);
+      await sleep(RETRY_DELAY);
+    }
+  }
 };
 
 const uploadToFtp = (filePath) => {
@@ -93,7 +103,7 @@ const updateMetadata = async (imageData) => {
 
     return metadata;
   } catch (err) {
-    console.error('Error updating metadata:', err);
+    console.error('Error updating metadata:', err.message);
     throw err;
   }
 };
