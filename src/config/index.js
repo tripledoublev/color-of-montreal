@@ -12,10 +12,10 @@ const config = {
   },
   
   twitter: {
-    appKey: process.env.TWITTER_API_CONSUMER_KEY,
-    appSecret: process.env.TWITTER_API_CONSUMER_SECRET,
-    accessToken: process.env.TWITTER_API_TOKEN,
-    accessSecret: process.env.TWITTER_API_TOKEN_SECRET,
+    appKey: process.env.TWITTER_API_KEY,
+    appSecret: process.env.TWITTER_API_SECRET,
+    accessToken: process.env.TWITTER_ACCESS_TOKEN,
+    accessSecret: process.env.TWITTER_ACCESS_SECRET,
   },
   
   bluesky: {
