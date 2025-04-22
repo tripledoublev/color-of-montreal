@@ -58,7 +58,11 @@ const uploadToFtp = (filePath) => {
     const client = new FtpClient();
     
     client.on('ready', () => {
-      client.put(filePath, path.basename(filePath), (err) => {
+      // Get just the filename since we want to upload to root
+      const filename = path.basename(filePath);
+      
+      // Upload the file to the root directory
+      client.put(filePath, `./${filename}`, (err) => {
         if (err) {
           client.end();
           reject(err);
@@ -89,18 +93,15 @@ const updateMetadata = async (imageData) => {
       location: "chez moi",
       color: `#${imageData.color.hex}`,
       name: imageData.color.name,
-      timestamp: imageData.timestamp.replace(/-/g, ':') // Convert back to ISO format
+      timestamp: imageData.timestamp // Use the timestamp as is (with hyphens)
     };
     metadata.images.push(newColor);
     
     // Write to local file
     await fs.writeFile(METADATA_FILE, JSON.stringify(metadata, null, 2));
     
-    // Upload both metadata and WebP image to FTP
-    await Promise.all([
-      uploadToFtp(METADATA_FILE),
-      uploadToFtp(imageData.filename)
-    ]);
+    // Upload only the metadata file to FTP
+    await uploadToFtp(METADATA_FILE);
 
     return metadata;
   } catch (err) {
