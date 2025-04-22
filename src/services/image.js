@@ -16,7 +16,7 @@ const streamToBuffer = (stream) => {
   });
 };
 
-const getImage = () => {
+const getImage = (timestamp) => {
   return new Promise((resolve, reject) => {
     const sourceUrl = new URL(config.camera.url);
     const get = sourceUrl.protocol === 'https:' ? https.get : http.get;
@@ -63,11 +63,10 @@ const getImage = () => {
             ctx.fillStyle = `#${hexValue}`;
             ctx.fillRect(startX, startY, overlayWidth, overlayHeight);
 
-            // Save the image data to a file in the archive folder
-            const timestamp = new Date().toISOString().replace(/:/g, '-');
-            const filename = `archive/${timestamp}__${hexValue}.webp`;
-
             const pngStream = canvas.createPNGStream();
+
+            // Use the provided timestamp for the filename
+            const filename = `archive/${timestamp}__${hexValue}.webp`;
 
             // Convert the PNG stream to WebP using sharp and save it to a file
             await sharp(await streamToBuffer(pngStream)).webp().toFile(filename);
@@ -78,16 +77,6 @@ const getImage = () => {
             const tempFilename = "output.png";
             console.log('saved output');
             await sharp(await streamToBuffer(canvas.createPNGStream())).png().toFile(tempFilename);
-
-            // Update metadata and upload to FTP
-            await updateMetadata({
-              filename, // Use the WebP version for metadata and FTP
-              location: config.camera.location,
-              color: {
-                name,
-                hex: hexValue
-              }
-            });
 
             resolve({ 
               imgData: pngImage, 

@@ -89,7 +89,7 @@ const updateMetadata = async (imageData) => {
       location: "chez moi",
       color: `#${imageData.color.hex}`,
       name: imageData.color.name,
-      timestamp: new Date().toISOString()
+      timestamp: imageData.timestamp.replace(/-/g, ':') // Convert back to ISO format
     };
     metadata.images.push(newColor);
     
@@ -110,5 +110,6 @@ const updateMetadata = async (imageData) => {
 };
 
 export {
-  updateMetadata
+  updateMetadata,
+  fetchMetadata
 }; 

@@ -16,8 +16,12 @@ const rootDir = path.resolve(__dirname, '..');
 const loop = async () => {
   try {
     console.log('Fetching new image...');
+    
+    // Generate timestamp
+    const timestamp = new Date().toISOString().replace(/:/g, '-');
+    
     // Get image and process it
-    const { imgData, location, color: detectedColor } = await getImage();
+    const { imgData, location, color: detectedColor } = await getImage(timestamp);
     
     console.log('Image captured successfully');
     console.log('Detected color:', detectedColor);
@@ -27,7 +31,6 @@ const loop = async () => {
     
     // Optimize image for social media
     const outputPath = path.join(rootDir, 'output.png');
-    const timestamp = new Date().toISOString().replace(/:/g, '-');
     const optimizedImagePath = path.join(rootDir, `${timestamp}__${detectedColor.hex.replace(/^#/, '')}.webp`);
     console.log('Optimizing image...');
     await optimizeImage(outputPath, optimizedImagePath);
@@ -43,7 +46,8 @@ const loop = async () => {
       color: {
         hex: detectedColor.hex,
         name: detectedColor.name
-      }
+      },
+      timestamp
     });
     console.log('Metadata updated successfully');
     
