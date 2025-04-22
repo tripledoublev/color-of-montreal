@@ -17,11 +17,12 @@ const loop = async () => {
   try {
     console.log('Fetching new image...');
     
-    // Generate timestamp
-    const timestamp = new Date().toISOString().replace(/:/g, '-');
+    // Generate timestamps
+    const isoTimestamp = new Date().toISOString();
+    const filenameTimestamp = isoTimestamp.replace(/:/g, '-');
     
     // Get image and process it
-    const { imgData, location, color: detectedColor } = await getImage(timestamp);
+    const { imgData, location, color: detectedColor } = await getImage(filenameTimestamp);
     
     console.log('Image captured successfully');
     console.log('Detected color:', detectedColor);
@@ -31,7 +32,7 @@ const loop = async () => {
     
     // Optimize image for social media
     const outputPath = path.join(rootDir, 'output.png');
-    const optimizedImagePath = path.join(rootDir, `${timestamp}__${detectedColor.hex.replace(/^#/, '')}.webp`);
+    const optimizedImagePath = path.join(rootDir, `${filenameTimestamp}__${detectedColor.hex.replace(/^#/, '')}.webp`);
     console.log('Optimizing image...');
     await optimizeImage(outputPath, optimizedImagePath);
     console.log('Image optimization complete');
@@ -47,7 +48,7 @@ const loop = async () => {
         hex: detectedColor.hex,
         name: detectedColor.name
       },
-      timestamp
+      timestamp: isoTimestamp
     });
     console.log('Metadata updated successfully');
     
