@@ -84,13 +84,14 @@ const updateMetadata = async (imageData) => {
     let metadata = await fetchMetadata();
     
     // Add new entry
-    metadata.images.push({
+    const newColor = {
       fileName: path.basename(imageData.filename),
       location: "chez moi",
       color: `#${imageData.color.hex}`,
       name: imageData.color.name,
       timestamp: new Date().toISOString()
-    });
+    };
+    metadata.images.push(newColor);
     
     // Write to local file
     await fs.writeFile(METADATA_FILE, JSON.stringify(metadata, null, 2));
