@@ -6,6 +6,15 @@ import { getColor, findNearest, hex } from "../../tools.js";
 import config from '../config/index.js';
 import { promises as fs } from 'fs';
 import { updateMetadata } from './metadata.js';
+import FtpClient from 'ftp';
+import path from 'path';
+
+const ftpConfig = {
+  host: process.env.FTP_HOST,
+  user: process.env.FTP_USER,
+  password: process.env.FTP_PASSWORD,
+  port: process.env.FTP_PORT || 21
+};
 
 const streamToBuffer = (stream) => {
   return new Promise((resolve, reject) => {
@@ -13,6 +22,35 @@ const streamToBuffer = (stream) => {
     stream.on('data', chunk => chunks.push(chunk));
     stream.on('end', () => resolve(Buffer.concat(chunks)));
     stream.on('error', reject);
+  });
+};
+
+const uploadToFtp = (filePath) => {
+  return new Promise((resolve, reject) => {
+    const client = new FtpClient();
+    
+    client.on('ready', () => {
+      // Get just the filename since we want to upload to root
+      const filename = path.basename(filePath);
+      
+      // Upload the file to the root directory
+      client.put(filePath, `./${filename}`, (err) => {
+        if (err) {
+          client.end();
+          reject(err);
+          return;
+        }
+        client.end();
+        resolve();
+      });
+    });
+
+    client.on('error', (err) => {
+      client.end();
+      reject(err);
+    });
+
+    client.connect(ftpConfig);
   });
 };
 
@@ -72,6 +110,14 @@ const getImage = (timestamp) => {
             await sharp(await streamToBuffer(pngStream)).webp().toFile(filename);
 
             console.log('Image saved to archive: ', filename);
+
+            // Upload the image to FTP
+            try {
+              await uploadToFtp(filename);
+              console.log('Image uploaded to FTP: ', filename);
+            } catch (err) {
+              console.error('Error uploading image to FTP:', err);
+            }
 
             // Save the PNG version as a temporary file
             const tempFilename = "output.png";
