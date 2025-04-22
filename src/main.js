@@ -27,7 +27,8 @@ const loop = async () => {
     
     // Optimize image for social media
     const outputPath = path.join(rootDir, 'output.png');
-    const optimizedImagePath = path.join(rootDir, 'output-optimized.webp');
+    const timestamp = new Date().toISOString().replace(/:/g, '-');
+    const optimizedImagePath = path.join(rootDir, `${timestamp}__${detectedColor.hex.replace(/^#/, '')}.webp`);
     console.log('Optimizing image...');
     await optimizeImage(outputPath, optimizedImagePath);
     console.log('Image optimization complete');
